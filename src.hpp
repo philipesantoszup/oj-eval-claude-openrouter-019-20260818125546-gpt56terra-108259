@@ -15,10 +15,11 @@ void Calculate(std::vector<Matrix *> keys, std::vector<Matrix *> values,
   for (size_t i = 0; i < keys.size(); ++i) {
     Matrix *query = rater.GetNextQuery();
 
-    // These are the only HBM-to-SRAM transfers needed in this round.
-    gpu_sim.MoveMatrixToSharedMem(query);
+    // Start the new key first: its transpose can overlap the value and query
+    // transfers because calculation and I/O use independent queues.
     gpu_sim.MoveMatrixToSharedMem(keys[i]);
     gpu_sim.MoveMatrixToSharedMem(values[i]);
+    gpu_sim.MoveMatrixToSharedMem(query);
 
     // Convert the new 1-by-d key to d-by-1, then append it to K^T.  Values
     // are appended as rows at the same time.
