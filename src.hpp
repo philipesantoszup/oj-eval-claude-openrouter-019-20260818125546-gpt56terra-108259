@@ -46,6 +46,7 @@ void Calculate(std::vector<Matrix *> keys, std::vector<Matrix *> values,
     Matrix *scores = matrix_memory_allocator.Allocate("scores");
     Matrix *exponents = matrix_memory_allocator.Allocate("exponents");
     gpu_sim.MatMul(query, all_keys_transposed, scores);
+    gpu_sim.ReleaseMatrix(query);
     gpu_sim.MatExp(scores, exponents);
     gpu_sim.ReleaseMatrix(scores);
 
@@ -79,7 +80,6 @@ void Calculate(std::vector<Matrix *> keys, std::vector<Matrix *> values,
     Matrix *answer = matrix_memory_allocator.Allocate("answer");
     gpu_sim.MatMul(softmax, all_values, answer);
     gpu_sim.ReleaseMatrix(softmax);
-    gpu_sim.ReleaseMatrix(query);
     gpu_sim.MoveMatrixToGpuHbm(answer);
 
     gpu_sim.Run(false, &matrix_memory_allocator);
